@@ -1,4 +1,4 @@
-import backend/router
+import administration/router
 import gleam/http/request
 import gleam/json
 import gleeunit/should

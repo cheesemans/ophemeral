@@ -1,6 +1,6 @@
-import backend/routes/auth
-import backend/routes/competitions
-import backend/web
+import administration/routes/auth
+import administration/routes/competitions
+import administration/web
 import wisp
 
 pub fn handle_request(req: wisp.Request, ctx: web.Context) -> wisp.Response {

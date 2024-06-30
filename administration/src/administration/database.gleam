@@ -9,13 +9,13 @@ pragma foreign_keys = on;
 pragma auto_vacuum = incremental;
 "
 
-pub fn with_connection(path: String, f: fn(sqlight.Connection) -> a) -> a {
+pub fn with_connection(path: String, next: fn(sqlight.Connection) -> a) -> a {
   use db <- sqlight.with_connection(path)
 
   // Enable configuration we want for all connections
   let assert Ok(_) = sqlight.exec(connection_config, db)
 
-  f(db)
+  next(db)
 }
 
 pub fn migrate(db: sqlight.Connection) {

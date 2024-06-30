@@ -1,5 +1,5 @@
-import backend/error.{type Error}
-import backend/generated/sql
+import administration/error.{type Error}
+import administration/generated/sql
 import gleam/dynamic.{type Dynamic}
 import gleam/json
 import gleam/option.{type Option, None, Some}

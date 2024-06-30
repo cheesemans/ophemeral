@@ -1,5 +1,5 @@
-import backend/error
-import backend/models/competition.{Competition}
+import administration/error
+import administration/models/competition.{Competition}
 import gleam/option.{None, Some}
 import gleeunit/should
 import test_utils
