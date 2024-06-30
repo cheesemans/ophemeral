@@ -1,6 +1,6 @@
-import backend/error.{type Error}
-import backend/generated/sql
-import backend/models/competition.{type Competition}
+import administration/error.{type Error}
+import administration/generated/sql
+import administration/models/competition.{type Competition}
 import beecrypt
 import gleam/dynamic
 import gleam/list

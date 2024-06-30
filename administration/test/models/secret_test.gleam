@@ -1,5 +1,5 @@
-import backend/models/competition
-import backend/models/secret.{Secret}
+import administration/models/competition
+import administration/models/secret.{Secret}
 import beecrypt
 import gleam/option.{None, Some}
 import test_utils

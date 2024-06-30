@@ -1,8 +1,8 @@
-import backend/database
-import backend/models/competition.{type Competition, Competition}
-import backend/models/secret
-import backend/router
-import backend/web.{type Context, Context}
+import administration/database
+import administration/models/competition.{type Competition, Competition}
+import administration/models/secret
+import administration/router
+import administration/web.{type Context, Context}
 import beecrypt
 import gleam/dynamic
 import gleam/json

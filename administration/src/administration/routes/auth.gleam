@@ -1,6 +1,6 @@
-import backend/error.{type Error}
-import backend/models/secret
-import backend/web
+import administration/error.{type Error}
+import administration/models/secret
+import administration/web
 import birl
 import gleam/json
 import gleam/list

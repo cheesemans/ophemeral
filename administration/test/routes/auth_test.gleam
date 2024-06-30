@@ -1,4 +1,4 @@
-import backend/router
+import administration/router
 import gleam/string
 import gleeunit/should
 import test_utils

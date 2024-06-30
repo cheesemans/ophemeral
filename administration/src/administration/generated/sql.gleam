@@ -1,7 +1,7 @@
 // THIS FILE IS GENERATED. DO NOT EDIT.
 // Regenerate with `gleam run -m codegen`
 
-import backend/error.{type Error}
+import administration/error.{type Error}
 import gleam/dynamic
 import gleam/result
 import sqlight

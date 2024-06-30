@@ -1,4 +1,4 @@
-name: test
+name: Test application
 
 on:
   pull_request:
@@ -10,7 +10,7 @@ jobs:
   gleam-test:
     strategy:
       matrix:
-        project: [backend]
+        project: [administration]
     runs-on: ubuntu-latest
     defaults:
       run:

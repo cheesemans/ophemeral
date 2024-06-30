@@ -1,5 +1,5 @@
-import backend/models/competition
-import backend/router
+import administration/models/competition
+import administration/router
 import gleam/http/request
 import gleam/int
 import gleam/json

@@ -11,14 +11,14 @@ const module_header = "// THIS FILE IS GENERATED. DO NOT EDIT.
 // Regenerate with `gleam run -m sqlgen`"
 
 fn generate_sql_queries_module() -> Nil {
-  let module_path = "src/backend/generated/sql.gleam"
+  let module_path = "src/administration/generated/sql.gleam"
   let assert Ok(files) = simplifile.read_directory("sql")
   let files = list.sort(files, string.compare)
   let assert Ok(functions) = list.try_map(files, generate_sql_function)
 
   let imports = [
     "import sqlight", "import gleam/result", "import gleam/dynamic",
-    "import backend/error.{type Error}",
+    "import administration/error.{type Error}",
   ]
   let module =
     string.join(
