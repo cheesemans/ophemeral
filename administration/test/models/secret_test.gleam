@@ -10,7 +10,7 @@ pub fn insert_competition_secret_test() {
 
   let assert Ok(competition) = competition.create(ctx.db, competition)
 
-  let assert Ok(Secret(secret_hash: "secret_hash", competition_id: 1)) =
+  let assert Ok(Secret(hash: "secret_hash", competition_id: 1)) =
     secret.create(ctx.db, competition, "secret_hash")
 }
 
@@ -25,7 +25,7 @@ pub fn validate_competition_secret_test() {
 
   let assert Ok(_) = secret.create(ctx.db, competition, secret_hash)
 
-  let assert Ok(Some(Secret(secret_hash: _, competition_id: 1))) =
+  let assert Ok(Some(Secret(hash: _, competition_id: 1))) =
     secret.validate_secret(ctx.db, secret)
 }
 

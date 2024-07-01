@@ -5,5 +5,4 @@ pub type Error {
   DatabaseError(sqlight.Error)
   DecodeErrors(dynamic.DecodeErrors)
   CompetitionNameAlreadyInUse
-  PrivateIdNotFound
 }
