@@ -2,12 +2,12 @@ import administration/error.{type Error}
 import administration/generated/sql
 import administration/models/competition.{type Competition}
 import beecrypt
+import decode
 import gleam/dynamic.{type Dynamic}
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
 import sqlight
-import decode
 
 pub type Secret {
   Secret(hash: String, competition_id: Int)
@@ -52,9 +52,7 @@ pub fn validate_secret(
     Ok(secrets) -> {
       let result =
         secrets
-        |> list.filter(fn(db_secret) {
-          beecrypt.verify(secret, db_secret.hash)
-        })
+        |> list.filter(fn(db_secret) { beecrypt.verify(secret, db_secret.hash) })
         |> list.first
       case result {
         Ok(secret) -> Ok(Some(secret))

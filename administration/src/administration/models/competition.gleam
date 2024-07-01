@@ -1,12 +1,12 @@
 import administration/error.{type Error}
 import administration/generated/sql
+import decode
 import gleam/dynamic.{type Dynamic}
 import gleam/json
 import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/string_builder.{type StringBuilder}
 import sqlight
-import decode
 
 pub type Competition {
   Competition(id: Int, name: String, organizer: String)
