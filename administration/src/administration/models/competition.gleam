@@ -6,29 +6,36 @@ import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/string_builder.{type StringBuilder}
 import sqlight
+import decode
 
 pub type Competition {
   Competition(id: Int, name: String, organizer: String)
 }
 
-pub fn db_decoder() -> dynamic.Decoder(Competition) {
-  dynamic.decode3(
-    Competition,
-    dynamic.element(0, dynamic.int),
-    dynamic.element(1, dynamic.string),
-    dynamic.element(2, dynamic.string),
-  )
+pub fn db_decoder(data: Dynamic) -> Result(Competition, dynamic.DecodeErrors) {
+  decode.into({
+    use id <- decode.parameter
+    use name <- decode.parameter
+    use organizer <- decode.parameter
+    Competition(id, name, organizer)
+  })
+  |> decode.field(0, decode.int)
+  |> decode.field(1, decode.string)
+  |> decode.field(2, decode.string)
+  |> decode.from(data)
 }
 
-pub fn json_decoder(json: Dynamic) -> Result(Competition, dynamic.DecodeErrors) {
-  let decoder =
-    dynamic.decode3(
-      Competition,
-      dynamic.field("id", dynamic.int),
-      dynamic.field("name", dynamic.string),
-      dynamic.field("organizer", dynamic.string),
-    )
-  decoder(json)
+pub fn json_decoder(data: Dynamic) -> Result(Competition, dynamic.DecodeErrors) {
+  decode.into({
+    use id <- decode.parameter
+    use name <- decode.parameter
+    use organizer <- decode.parameter
+    Competition(id, name, organizer)
+  })
+  |> decode.field("id", decode.int)
+  |> decode.field("name", decode.string)
+  |> decode.field("organizer", decode.string)
+  |> decode.from(data)
 }
 
 pub fn json_encoder(competition: Competition) -> StringBuilder {
@@ -50,7 +57,7 @@ pub fn create(
   ]
 
   let result =
-    sql.insert_competition(db, arguments, db_decoder())
+    sql.insert_competition(db, arguments, db_decoder)
     |> result.map(fn(rows) {
       let assert [row] = rows
       row
@@ -78,7 +85,7 @@ pub fn update(
   ]
 
   let result =
-    sql.update_competition(db, arguments, db_decoder())
+    sql.update_competition(db, arguments, db_decoder)
     |> result.map(fn(rows) {
       let assert [row] = rows
       row
@@ -101,7 +108,7 @@ pub fn get_by_id(
 ) -> Result(Option(Competition), error.Error) {
   let arguments = [sqlight.int(id)]
 
-  let result = sql.get_competition_by_id(db, arguments, db_decoder())
+  let result = sql.get_competition_by_id(db, arguments, db_decoder)
 
   case result {
     Ok([competition]) -> Ok(Some(competition))

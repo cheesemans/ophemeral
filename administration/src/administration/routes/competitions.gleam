@@ -7,6 +7,7 @@ import gleam/http.{Get, Patch, Post}
 import gleam/int
 import gleam/json
 import gleam/option.{None, Some}
+import gleam/io
 import wisp
 
 const invalid_data_msg = "Invalid request data"
@@ -54,12 +55,18 @@ fn patch(req: wisp.Request, ctx: web.Context) -> wisp.Response {
     wisp.unprocessable_entity,
   )
 
+  io.debug(competition)
+
   case competition.update(ctx.db, competition) {
     Ok(competition) -> {
       competition.json_encoder(competition)
       |> wisp.json_response(200)
     }
-    Error(_) -> wisp.internal_server_error()
+    Error(e) -> {
+      io.debug(e)
+      wisp.internal_server_error()
+    }
+    //Error(_) -> wisp.internal_server_error()
   }
 }
 
