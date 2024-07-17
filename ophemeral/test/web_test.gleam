@@ -12,7 +12,6 @@ fn competition_json() -> json.Json {
     #("organizer", json.string("Göteborg-Majorna OK")),
   ])
 }
-
 // TODO: Enable these once there exists endpoints to test towards!
 
 //pub fn authentication_test() {

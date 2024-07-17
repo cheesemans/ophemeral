@@ -1,7 +1,7 @@
-import gleam/io
 import beecrypt
 import decode
 import gleam/dynamic.{type Dynamic}
+import gleam/io
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
