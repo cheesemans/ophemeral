@@ -10,7 +10,7 @@ jobs:
   gleam-test:
     strategy:
       matrix:
-        project: [administration]
+        project: [ophemeral]
     runs-on: ubuntu-latest
     defaults:
       run:
