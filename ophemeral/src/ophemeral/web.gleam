@@ -1,14 +1,14 @@
-import gleam/string_builder.{type StringBuilder}
 import gleam/bool
 import gleam/http/request
 import gleam/option.{type Option, None, Some}
+import gleam/string_builder.{type StringBuilder}
 import gwt
 import lustre/attribute.{attribute}
 import lustre/element.{type Element, text}
 import lustre/element/html
+import ophemeral/config.{type Config}
 import sqlight
 import wisp.{type Request, type Response}
-import ophemeral/config.{type Config}
 
 pub type Context {
   Context(config: Config, db: sqlight.Connection, competition_id: Option(Int))

@@ -18,7 +18,7 @@ pub type Environment {
 
 pub fn read() -> Config {
   let environment = case determine_environment() {
-    Dev -> { 
+    Dev -> {
       dot.new()
       |> dot.set_path(".env")
       |> dot.set_debug(True)

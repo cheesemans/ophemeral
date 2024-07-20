@@ -1,12 +1,14 @@
 import gleam/dynamic
 import gleam/json
 import gleam/option.{None}
+import ophemeral/config.{Config, Dev}
 import ophemeral/database
-import ophemeral/models/competition.{type Competition, Competition, type CompetitionForm, CompetitionForm}
+import ophemeral/models/competition.{
+  type Competition, type CompetitionForm, Competition, CompetitionForm,
+}
 import ophemeral/models/secret
 import ophemeral/router
 import ophemeral/web.{type Context, Context}
-import ophemeral/config.{Config, Dev}
 import wisp/testing
 
 pub type Token {
@@ -14,7 +16,13 @@ pub type Token {
 }
 
 pub fn with_context(testcase: fn(Context) -> t) -> t {
-  let config = Config(environment: Dev, database_path: ":memory:", secret_key_base: "secret_key_base", secret_salt: "secret_salt")
+  let config =
+    Config(
+      environment: Dev,
+      database_path: ":memory:",
+      secret_key_base: "secret_key_base",
+      secret_salt: "secret_salt",
+    )
   use db <- database.with_connection(config.database_path)
 
   database.migrate(db)

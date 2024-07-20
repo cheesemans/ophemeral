@@ -1,27 +1,26 @@
-import gleam/option.{None}
 import gleam/erlang/process
+import gleam/option.{None}
 import mist
 import ophemeral/config.{type Config}
 import ophemeral/database
+import ophemeral/models/competition
 import ophemeral/router
 import ophemeral/routes/auth
 import ophemeral/web.{Context}
-import ophemeral/models/competition
 import shakespeare/actors/scheduled
 import wisp
 
 pub fn main() {
-  let config = config.read() 
-
+  let config = config.read()
   wisp.configure_logger()
 
   database.with_connection(config.database_path, database.migrate)
 
-
   let handler = fn(req) {
     use db <- database.with_connection(config.database_path)
     use competition_id <- auth.get_competition_id_from_cookie(req)
-    let context = Context(config: config, db: db, competition_id: competition_id)
+    let context =
+      Context(config: config, db: db, competition_id: competition_id)
 
     router.handle_request(req, context)
   }
@@ -39,13 +38,17 @@ pub fn main() {
 }
 
 fn start_cleanup_database_job(config: Config) {
-  let _ = scheduled.start(fn () { 
-    use db <- database.with_connection(config.database_path)
-    let context = Context(config: config, db: db, competition_id: None)
+  let _ =
+    scheduled.start(
+      fn() {
+        use db <- database.with_connection(config.database_path)
+        let context = Context(config: config, db: db, competition_id: None)
 
-    competition.delete_old(context) 
-    Nil 
-  }, scheduled.Daily(0,0,0))
+        competition.delete_old(context)
+        Nil
+      },
+      scheduled.Daily(0, 0, 0),
+    )
 
   Nil
 }

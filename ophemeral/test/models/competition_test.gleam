@@ -1,10 +1,12 @@
-import gleam/result
+import birl
 import birl/duration
 import gleam/option.{None, Some}
+import gleam/result
 import gleeunit/should
-import ophemeral/models/competition.{type Competition, Competition, CompetitionForm}
+import ophemeral/models/competition.{
+  type Competition, Competition, CompetitionForm,
+}
 import test_utils
-import birl
 
 fn expected_competition() -> Competition {
   Competition(
@@ -50,7 +52,12 @@ pub fn update_competition_test() {
   let assert Ok(_) = competition.create(ctx.db, competition)
 
   let updated_competition =
-    Competition(id: 1, name: "Mareld Nattcup E2", organizer: "Sävedalens AIK", datetime: birl.from_unix(12345))
+    Competition(
+      id: 1,
+      name: "Mareld Nattcup E2",
+      organizer: "Sävedalens AIK",
+      datetime: birl.from_unix(12_345),
+    )
 
   let assert Ok(result) = competition.update(ctx.db, updated_competition)
 
@@ -63,7 +70,8 @@ pub fn validate_form_name_test() {
   use competition <- test_utils.with_competition
   let assert Ok(_) = competition.create(ctx.db, competition)
 
-  let assert Ok(_) = competition.validate_form_name("Competition name not in use", ctx)
+  let assert Ok(_) =
+    competition.validate_form_name("Competition name not in use", ctx)
 }
 
 pub fn validate_form_name_exact_name_in_use_test() {
@@ -71,7 +79,8 @@ pub fn validate_form_name_exact_name_in_use_test() {
   use competition <- test_utils.with_competition
   let assert Ok(_) = competition.create(ctx.db, competition)
 
-  let assert Error("Competition name is already in use!") = competition.validate_form_name(competition.name, ctx)
+  let assert Error("Competition name is already in use!") =
+    competition.validate_form_name(competition.name, ctx)
 }
 
 pub fn validate_form_name_case_conflict_test() {
@@ -79,19 +88,20 @@ pub fn validate_form_name_case_conflict_test() {
   use competition <- test_utils.with_competition
   let assert Ok(_) = competition.create(ctx.db, competition)
 
-  let assert Error("Competition name is already in use!") = competition.validate_form_name("mareld nattcup e1", ctx)
+  let assert Error("Competition name is already in use!") =
+    competition.validate_form_name("mareld nattcup e1", ctx)
 }
 
 pub fn delete_competitions_test() {
   use ctx <- test_utils.with_context
 
-  let new_competition = 
+  let new_competition =
     CompetitionForm(
       name: "Mareld Nattcup E1",
       organizer: "Göteborg-Majorna OK",
       datetime: "1970-01-01T00:00:00.000",
     )
-  let old_competition = 
+  let old_competition =
     CompetitionForm(
       name: "Mareld Nattcup E2",
       organizer: "Göteborg-Majorna OK",
@@ -100,8 +110,16 @@ pub fn delete_competitions_test() {
   let assert Ok(new) = competition.create(ctx.db, new_competition)
   let assert Ok(old) = competition.create(ctx.db, old_competition)
 
-  let updated_new_competition = Competition(..new, datetime: birl.now() |> birl.to_naive |> birl.from_naive |> result.unwrap(birl.now()))
-  let updated_old_competition = Competition(..old, datetime: birl.subtract(birl.now(), duration.months(4)))
+  let updated_new_competition =
+    Competition(
+      ..new,
+      datetime: birl.now()
+        |> birl.to_naive
+        |> birl.from_naive
+        |> result.unwrap(birl.now()),
+    )
+  let updated_old_competition =
+    Competition(..old, datetime: birl.subtract(birl.now(), duration.months(4)))
 
   let assert Ok(_) = competition.update(ctx.db, updated_new_competition)
   let assert Ok(_) = competition.update(ctx.db, updated_old_competition)

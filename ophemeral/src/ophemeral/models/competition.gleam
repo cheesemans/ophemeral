@@ -1,26 +1,25 @@
-import gleam/order
-import ophemeral/database
-import gleam/string
-import gleam/list
+import birl.{type Time}
+import birl/duration
 import decode
 import gleam/dynamic.{type Dynamic}
 import gleam/json
-import gleam/option.{type Option, None}
+import gleam/list
+import gleam/option.{type Option}
+import gleam/order
+import gleam/string
 import gleam/string_builder.{type StringBuilder}
-import ophemeral/config.{type Config}
+import ophemeral/database
 import ophemeral/error.{type Error}
 import ophemeral/generated/sql
 import ophemeral/web.{type Context, Context}
 import sqlight
-import birl.{type Time}
-import birl/duration
 
 pub type Competition {
   Competition(id: Int, name: String, organizer: String, datetime: Time)
 }
 
 pub type CompetitionForm {
-  CompetitionForm(name: String, organizer: String, datetime: String) 
+  CompetitionForm(name: String, organizer: String, datetime: String)
 }
 
 pub fn db_decoder(data: Dynamic) -> Result(Competition, dynamic.DecodeErrors) {
@@ -130,8 +129,11 @@ pub fn get_all(ctx: Context) -> List(Competition) {
 }
 
 pub fn validate_form_name(name: String, ctx: Context) -> Result(String, String) {
-  let result = get_all(ctx)
-  |> list.find(fn(competition) { string.lowercase(competition.name) == string.lowercase(name) })
+  let result =
+    get_all(ctx)
+    |> list.find(fn(competition) {
+      string.lowercase(competition.name) == string.lowercase(name)
+    })
 
   case result {
     Ok(_) -> Error("Competition name is already in use!")
@@ -140,14 +142,18 @@ pub fn validate_form_name(name: String, ctx: Context) -> Result(String, String) 
 }
 
 pub fn delete_old(ctx: Context) -> Nil {
-  let old_competitions = get_all(ctx)
-  |> list.filter(is_old_competition)
+  let old_competitions =
+    get_all(ctx)
+    |> list.filter(is_old_competition)
 
   old_competitions
-  |> list.each(fn (competition) {delete_competition(competition, ctx) })
+  |> list.each(fn(competition) { delete_competition(competition, ctx) })
 }
 
-fn delete_competition(competition: Competition, ctx: Context) -> Result(List(Competition), Error) {
+fn delete_competition(
+  competition: Competition,
+  ctx: Context,
+) -> Result(List(Competition), Error) {
   let arguments = [sqlight.int(competition.id)]
 
   sql.delete_competition_by_id(ctx.db, arguments, db_decoder)

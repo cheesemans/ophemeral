@@ -1,9 +1,9 @@
-import gleeunit/should
+import argus
 import gleam/option.{None, Some}
+import gleeunit/should
 import ophemeral/models/competition
 import ophemeral/models/secret.{Secret}
 import test_utils
-import argus
 
 pub fn insert_competition_secret_test() {
   use ctx <- test_utils.with_context
@@ -13,9 +13,9 @@ pub fn insert_competition_secret_test() {
 
   let secret = "WibbleWobble"
 
-
-  let assert Ok(hashes) = argus.hasher_argon2i()
-  |> argus.hash(secret, ctx.config.secret_salt)
+  let assert Ok(hashes) =
+    argus.hasher_argon2i()
+    |> argus.hash(secret, ctx.config.secret_salt)
 
   let expected_hash = hashes.encoded_hash
 

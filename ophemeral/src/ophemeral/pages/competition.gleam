@@ -1,12 +1,12 @@
-import gleam/order
 import birl
-import gleam/string_builder.{type StringBuilder}
 import formal/form.{type Form}
 import gleam/http.{Get, Post}
 import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import gleam/order
 import gleam/result
+import gleam/string_builder.{type StringBuilder}
 import lustre/attribute.{attribute}
 import lustre/element.{type Element}
 import lustre/element/html.{html, text}
@@ -49,9 +49,9 @@ pub fn open(req: Request, ctx: Context) -> Response {
     Some(_) -> wisp.redirect("/competition/dashboard")
     None ->
       case req.method {
-        Get -> 
-          form.new() 
-          |> render_open_form(ctx) 
+        Get ->
+          form.new()
+          |> render_open_form(ctx)
           |> wisp.html_response(200)
         Post -> attempt_open_competition(req, ctx)
         _ -> wisp.method_not_allowed([Get, Post])
@@ -61,9 +61,9 @@ pub fn open(req: Request, ctx: Context) -> Response {
 
 pub fn create(req: Request, ctx: Context) -> Response {
   case req.method {
-    Get -> 
-      form.new() 
-      |> render_competition_form(ctx) 
+    Get ->
+      form.new()
+      |> render_competition_form(ctx)
       |> wisp.html_response(200)
     Post -> attempt_create_competition(req, ctx)
     _ -> wisp.method_not_allowed([Get, Post])
@@ -79,7 +79,12 @@ fn attempt_open_competition(req: Request, ctx: Context) {
       OpenForm(secret: secret)
     })
     |> form.with_values(formdata.values)
-    |> form.field("secret", form.string |> form.and(form.must_not_be_empty) |> and_with_context(secret.validate_form_secret, ctx))
+    |> form.field(
+      "secret",
+      form.string
+        |> form.and(form.must_not_be_empty)
+        |> and_with_context(secret.validate_form_secret, ctx),
+    )
     |> form.finish
 
   case result {
@@ -93,7 +98,7 @@ fn attempt_open_competition(req: Request, ctx: Context) {
         wisp.Signed,
         60 * 60,
       )
-      }
+    }
     Error(form) ->
       render_open_form(form, ctx)
       |> wisp.html_response(422)
@@ -124,59 +129,69 @@ fn attempt_create_competition(req: Request, ctx: Context) {
       CompetitionForm(name: name, organizer: organizer, datetime: datetime)
     })
     |> form.with_values(formdata.values)
-    |> form.field("name", form.string |> form.and(form.must_not_be_empty) |> and_with_context(competition.validate_form_name, ctx))
+    |> form.field(
+      "name",
+      form.string
+        |> form.and(form.must_not_be_empty)
+        |> and_with_context(competition.validate_form_name, ctx),
+    )
     |> form.field("organizer", form.string |> form.and(form.must_not_be_empty))
-    |> form.field("datetime-local", form.string |> form.and(form.must_not_be_empty) |> form.and(validate_form_date))
+    |> form.field(
+      "datetime-local",
+      form.string
+        |> form.and(form.must_not_be_empty)
+        |> form.and(validate_form_date),
+    )
     |> form.finish
 
   case result {
     Ok(values) -> {
-        let assert Ok(competition) = competition.create(ctx.db, values)
+      let assert Ok(competition) = competition.create(ctx.db, values)
 
-        let secret = wisp.random_string(16)
+      let secret = wisp.random_string(16)
 
-        let assert Ok(_) = secret.create(ctx, competition, secret)
+      let assert Ok(_) = secret.create(ctx, competition, secret)
 
-        let ctx = Context(..ctx, competition_id: Some(competition.id))
+      let ctx = Context(..ctx, competition_id: Some(competition.id))
 
-        [
-          html.div([attribute.class("grid")], [
-            html.div([], []),
-            html.form([], [
-              html.h4([], [text("Competition successfully created")]),
-              html.label([attribute.for("copy-secret")], [text("Secret key")]),
-              html.fieldset([attribute.role("group")], [
-                html.input([
-                  attribute.id("copy-secret"),
-                  attribute.value(secret),
-                  attribute("disabled", ""),
-                ]),
-                html.input([
-                  attribute.value("Copy 📋"),
-                  attribute.id("copy-button"),
-                  attribute.type_("submit"),
-                ]),
+      [
+        html.div([attribute.class("grid")], [
+          html.div([], []),
+          html.form([], [
+            html.h4([], [text("Competition successfully created")]),
+            html.label([attribute.for("copy-secret")], [text("Secret key")]),
+            html.fieldset([attribute.role("group")], [
+              html.input([
+                attribute.id("copy-secret"),
+                attribute.value(secret),
+                attribute("disabled", ""),
               ]),
-              html.p([], [text("This is your credential for the competition!")]),
+              html.input([
+                attribute.value("Copy 📋"),
+                attribute.id("copy-button"),
+                attribute.type_("submit"),
+              ]),
             ]),
-            html.div([], []),
-            html.script(
-              [attribute.src("/copy-secret.js"), attribute.type_("module")],
-              "",
-            ),
+            html.p([], [text("This is your credential for the competition!")]),
           ]),
-        ]
-        |> web.html_page(ctx)
-        |> wisp.html_response(200)
-        |> wisp.set_cookie(
-          req,
-          "competition_id",
-          int.to_string(competition.id),
-          wisp.Signed,
-          60 * 60,
-        )
-      }
-    Error(form) -> 
+          html.div([], []),
+          html.script(
+            [attribute.src("/copy-secret.js"), attribute.type_("module")],
+            "",
+          ),
+        ]),
+      ]
+      |> web.html_page(ctx)
+      |> wisp.html_response(200)
+      |> wisp.set_cookie(
+        req,
+        "competition_id",
+        int.to_string(competition.id),
+        wisp.Signed,
+        60 * 60,
+      )
+    }
+    Error(form) ->
       render_competition_form(form, ctx)
       |> wisp.html_response(422)
   }
@@ -230,7 +245,7 @@ fn render_competition_form(form: Form, ctx: Context) -> StringBuilder {
   |> web.html_page(ctx)
 }
 
-fn render_open_form(form: Form, ctx: Context) -> StringBuilder{
+fn render_open_form(form: Form, ctx: Context) -> StringBuilder {
   let content = [
     html.div([attribute.class("grid")], [
       html.div([], []),
@@ -292,11 +307,7 @@ fn form_field(
     text(title),
     html.input(
       list.flatten([
-        [
-          attribute.type_(kind),
-          attribute.name(name),
-          placeholder,
-        ],
+        [attribute.type_(kind), attribute.name(name), placeholder],
         error_attributes,
       ]),
     ),

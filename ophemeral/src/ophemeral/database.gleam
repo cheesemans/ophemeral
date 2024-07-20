@@ -1,8 +1,7 @@
-import shakespeare/actors/scheduled
-import gleam/result
-import sqlight
-import ophemeral/error.{type Error}
 import gleam/option.{type Option, None, Some}
+import gleam/result
+import ophemeral/error.{type Error}
+import sqlight
 
 pub type Connection =
   sqlight.Connection
@@ -28,27 +27,30 @@ pub fn with_connection(path: String, next: fn(sqlight.Connection) -> a) -> a {
 pub fn one(query_result: Result(List(a), Error)) -> Result(a, Error) {
   query_result
   |> result.map(fn(rows) {
-      let assert [row] = rows
-      row
-    })
+    let assert [row] = rows
+    row
+  })
 }
 
-pub fn zero_or_one(query_result: Result(List(a), Error)) -> Result(Option(a), Error) {
+pub fn zero_or_one(
+  query_result: Result(List(a), Error),
+) -> Result(Option(a), Error) {
   query_result
   |> result.map(fn(rows) {
-     case rows {
+    case rows {
       [] -> None
       [row] -> Some(row)
       _ -> panic as "Expected 0 or 1 rows"
-    }})
+    }
+  })
 }
 
 pub fn migrate(db: sqlight.Connection) {
   let command =
     "
-    drop table competitions;
-    drop table secrets;
-    create table if not exists competitions (
+    drop table if exists secrets;
+    drop table if exists competitions;
+    create table competitions (
       id integer primary key autoincrement not null,
 
       name text not null unique, 
@@ -58,7 +60,7 @@ pub fn migrate(db: sqlight.Connection) {
       datetime text not null
     );
 
-    create table if not exists secrets (
+    create table secrets (
       hash text not null,
 
       competition_id integer references competitions(id) ON DELETE CASCADE

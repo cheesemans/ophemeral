@@ -2,7 +2,7 @@
 # You typically do not need to edit this file
 
 packages = [
-  { name = "argus", version = "1.0.0", build_tools = ["gleam"], requirements = ["gleam_stdlib", "jargon"], source = "local", path = "../../argus" },
+  { name = "argus", version = "1.0.0", build_tools = ["gleam"], requirements = ["gleam_stdlib", "jargon"], source = "local", path = "../external/argus" },
   { name = "bcrypt", version = "1.2.2", build_tools = ["rebar3"], requirements = ["poolboy"], otp_app = "bcrypt", source = "hex", outer_checksum = "6428D68BB2608490E150BE406A7AB75B5BCE4A2B5A3B0C3F36A12E367A141561" },
   { name = "beecrypt", version = "0.3.1", build_tools = ["gleam"], requirements = ["bcrypt", "gleam_crypto", "gleam_erlang", "gleam_stdlib"], otp_app = "beecrypt", source = "hex", outer_checksum = "9698221A179C4D823DE2F00954D7A10BBC2B577B6C40A269BD676C308A788C15" },
   { name = "birl", version = "1.7.1", build_tools = ["gleam"], requirements = ["gleam_stdlib", "ranger"], otp_app = "birl", source = "hex", outer_checksum = "5C66647D62BCB11FE327E7A6024907C4A17954EF22865FE0940B54A852446D01" },
@@ -38,7 +38,7 @@ packages = [
 ]
 
 [requirements]
-argus = { path = "../../argus" }
+argus = { path = "../external/argus" }
 beecrypt = { version = ">= 0.3.1 and < 1.0.0" }
 birl = { version = ">= 1.7.1 and < 2.0.0" }
 decode = { version = ">= 0.2.0 and < 1.0.0" }

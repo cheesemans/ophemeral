@@ -1,8 +1,8 @@
-import ophemeral/database
 import argus
 import decode
 import gleam/dynamic.{type Dynamic}
 import gleam/option.{type Option, None, Some}
+import ophemeral/database
 import ophemeral/error.{type Error}
 import ophemeral/generated/sql
 import ophemeral/models/competition.{type Competition}
@@ -25,9 +25,9 @@ pub fn db_decoder(data: Dynamic) -> Result(Secret, dynamic.DecodeErrors) {
 }
 
 fn hash_secret(secret_key: String, ctx: Context) -> String {
-  let assert Ok(hashes) = 
+  let assert Ok(hashes) =
     argus.hasher_argon2i()
-   |> argus.hash(secret_key, ctx.config.secret_salt)
+    |> argus.hash(secret_key, ctx.config.secret_salt)
 
   hashes.encoded_hash
 }
