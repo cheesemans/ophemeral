@@ -1,5 +1,5 @@
 insert into competitions
-  (name, organizer)
+  (name, organizer, datetime)
 values
-  ($1, $2)
+  ($1, $2, $3)
 returning *

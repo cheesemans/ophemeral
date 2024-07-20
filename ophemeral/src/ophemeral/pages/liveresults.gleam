@@ -1,3 +1,4 @@
+import birl
 import gleam/list
 import lustre/attribute.{attribute}
 import lustre/element/html.{html, text}
@@ -6,7 +7,7 @@ import ophemeral/web.{type Context}
 import wisp.{type Request, type Response}
 
 pub fn page(_req: Request, ctx: Context) -> Response {
-  let competitions = competition.get_all(ctx.db)
+  let competitions = competition.get_all(ctx)
 
   let content = [
     html.table([], [
@@ -14,6 +15,7 @@ pub fn page(_req: Request, ctx: Context) -> Response {
         html.tr([], [
           html.th([attribute("scope", "col")], [text("Name")]),
           html.th([attribute("scope", "col")], [text("Organizer")]),
+          html.th([attribute("scope", "col")], [text("Date")]),
         ]),
       ]),
       html.tbody(
@@ -22,6 +24,7 @@ pub fn page(_req: Request, ctx: Context) -> Response {
           html.tr([], [
             html.th([attribute("scope", "row")], [text(competition.name)]),
             html.td([], [text(competition.organizer)]),
+            html.td([], [text(birl.to_naive(competition.datetime))]),
           ])
         }),
       ),
@@ -30,5 +33,5 @@ pub fn page(_req: Request, ctx: Context) -> Response {
 
   content
   |> web.html_page(ctx)
-  |> web.serve_html
+  |> wisp.html_response(200)
 }

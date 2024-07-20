@@ -11,8 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
     copyButton.setAttribute("value", "Copied 🥳");
 
     setTimeout(function() {
-      copyButton.innerText = 'Copy 📋';
-    }, 2000);
+      copyButton.setAttribute("value", "Copy 📋");
+    }, 5000);
 
     event.preventDefault();
   });

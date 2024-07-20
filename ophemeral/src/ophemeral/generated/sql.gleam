@@ -1,13 +1,26 @@
 // THIS FILE IS GENERATED. DO NOT EDIT.
 // Regenerate with `gleam run -m sqlgen`
 
-import gleam/dynamic
-import gleam/result
-import ophemeral/error.{type Error}
 import sqlight
+import gleam/result
+import gleam/dynamic
+import ophemeral/error.{type Error}
 
 pub type QueryResult(t) =
   Result(List(t), Error)
+
+pub fn delete_competition_by_id(
+  db: sqlight.Connection,
+  arguments: List(sqlight.Value),
+  decoder: dynamic.Decoder(a),
+) -> QueryResult(a) {
+  let query =
+    "delete from competitions
+where id = $1
+"
+  sqlight.query(query, db, arguments, decoder)
+  |> result.map_error(error.DatabaseError)
+}
 
 pub fn get_all_competitions(
   db: sqlight.Connection,
@@ -36,7 +49,7 @@ where id = $1
   |> result.map_error(error.DatabaseError)
 }
 
-pub fn get_secrets(
+pub fn get_secret_by_hash(
   db: sqlight.Connection,
   arguments: List(sqlight.Value),
   decoder: dynamic.Decoder(a),
@@ -44,6 +57,7 @@ pub fn get_secrets(
   let query =
     "select *
 from secrets
+where hash = $1
 "
   sqlight.query(query, db, arguments, decoder)
   |> result.map_error(error.DatabaseError)
@@ -56,9 +70,9 @@ pub fn insert_competition(
 ) -> QueryResult(a) {
   let query =
     "insert into competitions
-  (name, organizer)
+  (name, organizer, datetime)
 values
-  ($1, $2)
+  ($1, $2, $3)
 returning *
 "
   sqlight.query(query, db, arguments, decoder)
@@ -72,7 +86,7 @@ pub fn insert_secret(
 ) -> QueryResult(a) {
   let query =
     "insert into secrets
-  (secret_hash, competition_id)
+  (hash, competition_id)
 values
   ($1, $2)
 returning *
@@ -88,8 +102,8 @@ pub fn update_competition(
 ) -> QueryResult(a) {
   let query =
     "update competitions
-set name = $1, organizer = $2
-where id = $3
+set name = $1, organizer = $2, datetime = $3
+where id = $4
 returning *
 "
   sqlight.query(query, db, arguments, decoder)

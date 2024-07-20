@@ -1,13 +1,12 @@
-import beecrypt
 import gleam/dynamic
-import gleam/io
 import gleam/json
 import gleam/option.{None}
 import ophemeral/database
-import ophemeral/models/competition.{type Competition, Competition}
+import ophemeral/models/competition.{type Competition, Competition, type CompetitionForm, CompetitionForm}
 import ophemeral/models/secret
 import ophemeral/router
 import ophemeral/web.{type Context, Context}
+import ophemeral/config.{Config, Dev}
 import wisp/testing
 
 pub type Token {
@@ -15,19 +14,22 @@ pub type Token {
 }
 
 pub fn with_context(testcase: fn(Context) -> t) -> t {
-  use db <- database.with_connection(":memory:")
+  let config = Config(environment: Dev, database_path: ":memory:", secret_key_base: "secret_key_base", secret_salt: "secret_salt")
+  use db <- database.with_connection(config.database_path)
+
   database.migrate(db)
-  let ctx = Context(db: db, competition_id: None)
+
+  let ctx = Context(config: config, db: db, competition_id: None)
 
   testcase(ctx)
 }
 
-pub fn with_competition(testcase: fn(Competition) -> t) -> t {
+pub fn with_competition(testcase: fn(CompetitionForm) -> t) -> t {
   let competition =
-    Competition(
-      id: 0,
+    CompetitionForm(
       name: "Mareld Nattcup E1",
       organizer: "Göteborg-Majorna OK",
+      datetime: "1970-01-01T00:00:00.000",
     )
 
   testcase(competition)
@@ -40,10 +42,9 @@ pub fn with_created_competition(
   use competition <- with_competition
 
   let secret = "secret"
-  let secret_hash = beecrypt.hash(secret)
 
   let assert Ok(created_competition) = competition.create(ctx.db, competition)
-  let assert Ok(_) = secret.create(ctx.db, created_competition, secret_hash)
+  let assert Ok(_) = secret.create(ctx, created_competition, secret)
 
   let data = json.object([#("secret", json.string(secret))])
   let response =

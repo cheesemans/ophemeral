@@ -1,17 +1,17 @@
-import gleam/http/request
-import gleam/json
-import gleeunit/should
-import ophemeral/router
-import test_utils
-import wisp/testing
-
-fn competition_json() -> json.Json {
-  json.object([
-    #("id", json.int(1)),
-    #("name", json.string("Mareld Nattcup E2")),
-    #("organizer", json.string("Göteborg-Majorna OK")),
-  ])
-}
+//import gleam/http/request
+//import gleam/json
+//import gleeunit/should
+//import ophemeral/router
+//import test_utils
+//import wisp/testing
+//
+//fn competition_json() -> json.Json {
+//  json.object([
+//    #("id", json.int(1)),
+//    #("name", json.string("Mareld Nattcup E2")),
+//    #("organizer", json.string("Göteborg-Majorna OK")),
+//  ])
+//}
 // TODO: Enable these once there exists endpoints to test towards!
 
 //pub fn authentication_test() {

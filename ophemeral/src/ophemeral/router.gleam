@@ -1,18 +1,18 @@
-import gleam/bytes_builder
-import gleam/erlang/process.{type Selector, type Subject}
-import gleam/http/request.{type Request}
-import gleam/http/response.{type Response}
-import gleam/io
-import gleam/json
-import gleam/option.{type Option, None, Some}
-import gleam/result
-import lustre
-import lustre/element.{type Element}
-import lustre/server_component
-import mist.{
-  type Connection, type ResponseData, type WebsocketConnection,
-  type WebsocketMessage,
-}
+//import gleam/bytes_builder
+//import gleam/erlang/process.{type Selector, type Subject}
+//import gleam/http/request.{type Request}
+//import gleam/http/response.{type Response}
+//import gleam/io
+//import gleam/json
+//import gleam/option.{type Option, None, Some}
+//import gleam/result
+//import lustre
+//import lustre/element.{type Element}
+//import lustre/server_component
+//import mist.{
+//  type Connection, type ResponseData, type WebsocketConnection,
+//  type WebsocketMessage,
+//}
 import ophemeral/pages/competition
 import ophemeral/pages/home
 import ophemeral/pages/liveresults

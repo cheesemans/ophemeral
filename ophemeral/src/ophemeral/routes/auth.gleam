@@ -29,7 +29,7 @@ pub fn request(req: wisp.Request, ctx: web.Context) -> wisp.Response {
 
   use secret <- web.try_(decode_json(data), wisp.unprocessable_entity)
 
-  case secret.validate_secret(ctx.db, secret.secret) {
+  case secret.get_secret(secret.secret, ctx) {
     Ok(Some(_)) -> {
       let token_expire_time = birl.to_unix(birl.now()) + 600
 
