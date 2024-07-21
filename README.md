@@ -17,3 +17,13 @@ Sportident readout will likely require a separate app as browser usb access is n
 ```sh
 docker compose up --build
 ```
+
+## Database stuff
+
+### Migrations
+
+Add new migration: 
+
+```sh
+gleam run -m feather -- new "<Name of migration>"
+```
