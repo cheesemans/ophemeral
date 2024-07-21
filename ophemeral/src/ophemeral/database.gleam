@@ -31,7 +31,7 @@ pub fn zero_or_one(
   })
 }
 
-pub fn migrate(connection: Connection) -> Result(Nil, migrate.MigrationError){
+pub fn migrate(connection: Connection) -> Result(Nil, migrate.MigrationError) {
   let assert Ok(priv_dir) = erlang.priv_directory("ophemeral")
   use migrations <- result.try(migrate.get_migrations(priv_dir <> "/migrations"))
   migrate.migrate(migrations, connection)

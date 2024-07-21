@@ -35,7 +35,12 @@ pub fn read() -> Config {
   let assert Ok(secret_salt) = env.get_string("SECRET_SALT")
   let assert Ok(database_path) = env.get_string("DATABASE_PATH")
 
-  let database_config = feather.Config(..feather.default_config(), file: database_path, foreign_keys: True)
+  let database_config =
+    feather.Config(
+      ..feather.default_config(),
+      file: database_path,
+      foreign_keys: True,
+    )
 
   Config(
     environment: environment,

@@ -20,7 +20,11 @@ pub fn with_context(testcase: fn(Context) -> t) -> t {
   let config =
     Config(
       environment: Dev,
-      database_config: feather.Config(..feather.default_config(), file: ":memory:", foreign_keys: True),
+      database_config: feather.Config(
+        ..feather.default_config(),
+        file: ":memory:",
+        foreign_keys: True,
+      ),
       secret_key_base: "secret_key_base",
       secret_salt: "secret_salt",
     )

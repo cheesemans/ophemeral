@@ -1,5 +1,5 @@
-import feather/migrate
 import feather
+import feather/migrate
 import gleam/erlang/process
 import gleam/option.{None}
 import mist
@@ -16,7 +16,8 @@ pub fn main() {
   let config = config.read()
   wisp.configure_logger()
 
-  let assert Ok(_) = feather.with_connection(config.database_config, database.migrate)
+  let assert Ok(_) =
+    feather.with_connection(config.database_config, database.migrate)
 
   let handler = fn(req) {
     use db <- feather.with_connection(config.database_config)
