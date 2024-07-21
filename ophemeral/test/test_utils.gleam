@@ -1,3 +1,4 @@
+import feather
 import gleam/dynamic
 import gleam/json
 import gleam/option.{None}
@@ -19,13 +20,14 @@ pub fn with_context(testcase: fn(Context) -> t) -> t {
   let config =
     Config(
       environment: Dev,
-      database_path: ":memory:",
+      database_config: feather.Config(..feather.default_config(), file: ":memory:", foreign_keys: True),
       secret_key_base: "secret_key_base",
       secret_salt: "secret_salt",
     )
-  use db <- database.with_connection(config.database_path)
 
-  database.migrate(db)
+  use db <- feather.with_connection(config.database_config)
+
+  let assert Ok(_) = database.migrate(db)
 
   let ctx = Context(config: config, db: db, competition_id: None)
 

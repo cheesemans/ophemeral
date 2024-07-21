@@ -1,3 +1,5 @@
+import feather/migrate
+import feather
 import gleam/erlang/process
 import gleam/option.{None}
 import mist
@@ -14,10 +16,10 @@ pub fn main() {
   let config = config.read()
   wisp.configure_logger()
 
-  database.with_connection(config.database_path, database.migrate)
+  let assert Ok(_) = feather.with_connection(config.database_config, database.migrate)
 
   let handler = fn(req) {
-    use db <- database.with_connection(config.database_path)
+    use db <- feather.with_connection(config.database_config)
     use competition_id <- auth.get_competition_id_from_cookie(req)
     let context =
       Context(config: config, db: db, competition_id: competition_id)
@@ -41,7 +43,7 @@ fn start_cleanup_database_job(config: Config) {
   let _ =
     scheduled.start(
       fn() {
-        use db <- database.with_connection(config.database_path)
+        use db <- feather.with_connection(config.database_config)
         let context = Context(config: config, db: db, competition_id: None)
 
         competition.delete_old(context)
