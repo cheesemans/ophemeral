@@ -1,3 +1,4 @@
+import tom
 import argv
 import filepath
 import gleam/bool
@@ -10,7 +11,6 @@ import gleam/option.{None, Some}
 import gleam/regex
 import gleam/result
 import gleam/string
-import gloml
 import justin
 import simplifile
 import sqlight.{type Connection}
@@ -31,20 +31,20 @@ const helptext = "
 "
 
 fn get_migrations_dir() -> String {
-  simplifile.read("gleam.toml")
-  |> result.nil_error
-  |> result.map(gloml.decode(_, dynamic.field("migrations_dir", dynamic.string)))
-  |> result.map(result.map_error(_, fn(_) { Nil }))
-  |> result.flatten
+  let assert Ok(content) = simplifile.read("gleam.toml")
+
+  let assert Ok(parsed) = tom.parse(content)
+
+  tom.get_string(parsed, ["migrations_dir"])
   |> result.unwrap("./migrations")
 }
 
 fn get_schema_file() -> String {
-  simplifile.read("gleam.toml")
-  |> result.nil_error
-  |> result.map(gloml.decode(_, dynamic.field("schemafile", dynamic.string)))
-  |> result.map(result.map_error(_, fn(_) { Nil }))
-  |> result.flatten
+  let assert Ok(content) = simplifile.read("gleam.toml")
+
+  let assert Ok(parsed) = tom.parse(content)
+
+  tom.get_string(parsed, ["schemafile"])
   |> result.unwrap("./schema.sql")
 }
 

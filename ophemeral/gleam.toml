@@ -27,11 +27,3 @@ dot_env = ">= 1.0.1 and < 2.0.0"
 
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"
-cactus = ">= 1.1.0 and < 2.0.0"
-
-[cactus.pre-commit]
-actions = [
-    { command = "test", kind = "sub_command" },
-    { command = "format", kind = "sub_command", args = ["--check"] },
-    { command = "./scripts/sync-forks.sh", kind = "binary" },
-]
