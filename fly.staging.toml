@@ -22,3 +22,7 @@ primary_region = 'arn'
 
 [[vm]]
   size = 'shared-cpu-1x'
+
+[env]
+  DATABASE_PATH = "/app/data/database.sqlite"
+  ENVIRONMENT = "staging"

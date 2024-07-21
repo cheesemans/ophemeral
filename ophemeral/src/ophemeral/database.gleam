@@ -1,3 +1,6 @@
+import gleam/option.{type Option, None, Some}
+import gleam/result
+import ophemeral/error.{type Error}
 import sqlight
 
 pub type Connection =
@@ -21,19 +24,44 @@ pub fn with_connection(path: String, next: fn(sqlight.Connection) -> a) -> a {
   //let assert Ok(_) = sqlight.exec(connection_config, db)
 }
 
+pub fn one(query_result: Result(List(a), Error)) -> Result(a, Error) {
+  query_result
+  |> result.map(fn(rows) {
+    let assert [row] = rows
+    row
+  })
+}
+
+pub fn zero_or_one(
+  query_result: Result(List(a), Error),
+) -> Result(Option(a), Error) {
+  query_result
+  |> result.map(fn(rows) {
+    case rows {
+      [] -> None
+      [row] -> Some(row)
+      _ -> panic as "Expected 0 or 1 rows"
+    }
+  })
+}
+
 pub fn migrate(db: sqlight.Connection) {
   let command =
     "
-    create table if not exists competitions (
+    drop table if exists secrets;
+    drop table if exists competitions;
+    create table competitions (
       id integer primary key autoincrement not null,
 
       name text not null unique, 
 
-      organizer text not null 
+      organizer text not null, 
+
+      datetime text not null
     );
 
-    create table if not exists secrets (
-      secret_hash text not null,
+    create table secrets (
+      hash text not null,
 
       competition_id integer references competitions(id) ON DELETE CASCADE
     );

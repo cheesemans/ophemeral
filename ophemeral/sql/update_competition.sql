@@ -1,4 +1,4 @@
 update competitions
-set name = $1, organizer = $2
-where id = $3
+set name = $1, organizer = $2, datetime = $3
+where id = $4
 returning *

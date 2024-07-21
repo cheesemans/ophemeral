@@ -16,5 +16,5 @@ pub fn page(_req: Request, ctx: Context) -> Response {
 
   content
   |> web.html_page(ctx)
-  |> web.serve_html
+  |> wisp.html_response(200)
 }

@@ -1,15 +1,17 @@
 import gleam/bool
 import gleam/http/request
 import gleam/option.{type Option, None, Some}
+import gleam/string_builder.{type StringBuilder}
 import gwt
 import lustre/attribute.{attribute}
 import lustre/element.{type Element, text}
 import lustre/element/html
+import ophemeral/config.{type Config}
 import sqlight
 import wisp.{type Request, type Response}
 
 pub type Context {
-  Context(db: sqlight.Connection, competition_id: Option(Int))
+  Context(config: Config, db: sqlight.Connection, competition_id: Option(Int))
 }
 
 pub fn middleware(
@@ -65,16 +67,6 @@ pub fn require_competition_id(
   }
 }
 
-pub fn serve_html(body: Element(a)) -> wisp.Response {
-  wisp.response(200)
-  |> wisp.set_header("content-type", "text/html")
-  |> wisp.set_body(
-    body
-    |> element.to_string_builder
-    |> wisp.Text,
-  )
-}
-
 pub fn default_responses(
   ctx,
   handle_request: fn() -> wisp.Response,
@@ -90,28 +82,28 @@ pub fn default_responses(
     404 | 405 ->
       [html.h1([], [text("There's nothing here 🤷")])]
       |> html_page(ctx)
-      |> serve_html
+      |> wisp.html_response(response.status)
     401 ->
       [html.h1([], [text("⛔ You're not authorized to here ⛔")])]
       |> html_page(ctx)
-      |> serve_html
+      |> wisp.html_response(response.status)
     400 | 422 ->
       [html.h1([], [text("Bad request 🤕")])]
       |> html_page(ctx)
-      |> serve_html
+      |> wisp.html_response(response.status)
     413 ->
       [html.h1([], [text("Request entity too large ")])]
       |> html_page(ctx)
-      |> serve_html
+      |> wisp.html_response(response.status)
     500 ->
       [html.h1([], [text("💣 Internal server error 💣")])]
       |> html_page(ctx)
-      |> serve_html
+      |> wisp.html_response(response.status)
     _ -> wisp.redirect("/")
   }
 }
 
-pub fn html_page(content: List(Element(a)), ctx: Context) -> Element(a) {
+pub fn html_page(content: List(Element(a)), ctx: Context) -> StringBuilder {
   html.html([], [
     html.head([], [
       html.meta([attribute("charset", "utf-8")]),
@@ -133,6 +125,7 @@ pub fn html_page(content: List(Element(a)), ctx: Context) -> Element(a) {
       footer(),
     ]),
   ])
+  |> element.to_string_builder
 }
 
 pub fn navbar(ctx: Context) -> Element(a) {

@@ -6,4 +6,9 @@ erl_crash.dump
 
 # Sqlite
 *.sqlite3
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
 
+# dotenv file
+.env

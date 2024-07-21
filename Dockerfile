@@ -1,6 +1,7 @@
-FROM ghcr.io/gleam-lang/gleam:v1.2.1-erlang-alpine
+FROM ghcr.io/gleam-lang/gleam:v1.3.2-erlang-alpine
 
-# Add project cod
+# Add project code
+COPY external/argus /build/external/argus
 COPY ophemeral /build/ophemeral
 
 # Compile the Gleam application

@@ -1,15 +1,25 @@
+import birl.{type Time}
+import birl/duration
 import decode
 import gleam/dynamic.{type Dynamic}
 import gleam/json
-import gleam/option.{type Option, None, Some}
-import gleam/result
+import gleam/list
+import gleam/option.{type Option}
+import gleam/order
+import gleam/string
 import gleam/string_builder.{type StringBuilder}
+import ophemeral/database
 import ophemeral/error.{type Error}
 import ophemeral/generated/sql
+import ophemeral/web.{type Context, Context}
 import sqlight
 
 pub type Competition {
-  Competition(id: Int, name: String, organizer: String)
+  Competition(id: Int, name: String, organizer: String, datetime: Time)
+}
+
+pub type CompetitionForm {
+  CompetitionForm(name: String, organizer: String, datetime: String)
 }
 
 pub fn db_decoder(data: Dynamic) -> Result(Competition, dynamic.DecodeErrors) {
@@ -17,12 +27,21 @@ pub fn db_decoder(data: Dynamic) -> Result(Competition, dynamic.DecodeErrors) {
     use id <- decode.parameter
     use name <- decode.parameter
     use organizer <- decode.parameter
-    Competition(id, name, organizer)
+    use datetime <- decode.parameter
+    Competition(id, name, organizer, datetime)
   })
   |> decode.field(0, decode.int)
   |> decode.field(1, decode.string)
   |> decode.field(2, decode.string)
+  |> decode.field(3, decode.string |> decode.map(decode_datetime))
   |> decode.from(data)
+}
+
+fn decode_datetime(datetime: String) -> Time {
+  case birl.from_naive(datetime) {
+    Ok(time) -> time
+    _ -> panic as "Date from database should always be decodable"
+  }
 }
 
 pub fn json_decoder(data: Dynamic) -> Result(Competition, dynamic.DecodeErrors) {
@@ -30,11 +49,13 @@ pub fn json_decoder(data: Dynamic) -> Result(Competition, dynamic.DecodeErrors) 
     use id <- decode.parameter
     use name <- decode.parameter
     use organizer <- decode.parameter
-    Competition(id, name, organizer)
+    use datetime <- decode.parameter
+    Competition(id, name, organizer, datetime)
   })
   |> decode.field("id", decode.int)
   |> decode.field("name", decode.string)
   |> decode.field("organizer", decode.string)
+  |> decode.field("datetime", decode.string |> decode.map(decode_datetime))
   |> decode.from(data)
 }
 
@@ -49,27 +70,20 @@ pub fn json_encoder(competition: Competition) -> StringBuilder {
 
 pub fn create(
   db: sqlight.Connection,
-  competition: Competition,
+  competition: CompetitionForm,
 ) -> Result(Competition, error.Error) {
   let arguments = [
     sqlight.text(competition.name),
     sqlight.text(competition.organizer),
+    sqlight.text(competition.datetime),
   ]
 
   let result =
     sql.insert_competition(db, arguments, db_decoder)
-    |> result.map(fn(rows) {
-      let assert [row] = rows
-      row
-    })
+    |> database.one
 
   case result {
     Ok(competition) -> Ok(competition)
-    Error(error.DatabaseError(sqlight.SqlightError(
-      sqlight.ConstraintUnique,
-      "UNIQUE constraint failed: competitions.name",
-      _,
-    ))) -> Error(error.CompetitionNameAlreadyInUse)
     Error(error) -> Error(error)
   }
 }
@@ -81,23 +95,16 @@ pub fn update(
   let arguments = [
     sqlight.text(competition.name),
     sqlight.text(competition.organizer),
+    sqlight.text(birl.to_naive(competition.datetime)),
     sqlight.int(competition.id),
   ]
 
   let result =
     sql.update_competition(db, arguments, db_decoder)
-    |> result.map(fn(rows) {
-      let assert [row] = rows
-      row
-    })
+    |> database.one
 
   case result {
     Ok(competition) -> Ok(competition)
-    Error(error.DatabaseError(sqlight.SqlightError(
-      sqlight.ConstraintUnique,
-      "UNIQUE constraint failed: competitions.name",
-      _,
-    ))) -> Error(error.CompetitionNameAlreadyInUse)
     Error(error) -> Error(error)
   }
 }
@@ -108,20 +115,53 @@ pub fn get_by_id(
 ) -> Result(Option(Competition), error.Error) {
   let arguments = [sqlight.int(id)]
 
-  let result = sql.get_competition_by_id(db, arguments, db_decoder)
+  sql.get_competition_by_id(db, arguments, db_decoder)
+  |> database.zero_or_one
+}
+
+pub fn get_all(ctx: Context) -> List(Competition) {
+  let result = sql.get_all_competitions(ctx.db, [], db_decoder)
 
   case result {
-    Ok([competition]) -> Ok(Some(competition))
-    Ok(_) -> Ok(None)
-    Error(error) -> Error(error)
+    Ok(competitions) -> competitions
+    Error(_) -> []
   }
 }
 
-pub fn get_all(db: sqlight.Connection) -> List(Competition) {
-  let result = sql.get_all_competitions(db, [], db_decoder)
+pub fn validate_form_name(name: String, ctx: Context) -> Result(String, String) {
+  let result =
+    get_all(ctx)
+    |> list.find(fn(competition) {
+      string.lowercase(competition.name) == string.lowercase(name)
+    })
 
   case result {
-    Ok(competition) -> competition
-    Error(_) -> []
+    Ok(_) -> Error("Competition name is already in use!")
+    Error(_) -> Ok(name)
   }
+}
+
+pub fn delete_old(ctx: Context) -> Nil {
+  let old_competitions =
+    get_all(ctx)
+    |> list.filter(is_old_competition)
+
+  old_competitions
+  |> list.each(fn(competition) { delete_competition(competition, ctx) })
+}
+
+fn delete_competition(
+  competition: Competition,
+  ctx: Context,
+) -> Result(List(Competition), Error) {
+  let arguments = [sqlight.int(competition.id)]
+
+  sql.delete_competition_by_id(ctx.db, arguments, db_decoder)
+}
+
+fn is_old_competition(competition: Competition) -> Bool {
+  //let keep_duration = duration.months(3)
+  let keep_duration = duration.days(1)
+  let cutoff_datetime = birl.subtract(birl.now(), keep_duration)
+  birl.compare(competition.datetime, cutoff_datetime) == order.Lt
 }
