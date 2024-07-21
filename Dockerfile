@@ -2,6 +2,7 @@ FROM ghcr.io/gleam-lang/gleam:v1.3.2-erlang-alpine
 
 # Add project code
 COPY external/argus /build/external/argus
+COPY external/feather /build/external/feather
 COPY ophemeral /build/ophemeral
 
 # Compile the Gleam application
